@@ -1,0 +1,40 @@
+arn:aws:lambda:us-east-1:000000000000:function:localstack-trpc
+zip -r function.zip .
+
+awslocal lambda create-function \
+    --function-name localstack-trpc \
+    --runtime nodejs20.x \
+    --zip-file fileb://function.zip \
+    --handler lambda.handler \
+    --role arn:aws:iam::000000000000:role/lambda-role
+
+awslocal lambda update-function-code \
+    --function-name localstack-trpc \
+    --zip-file fileb://function.zip
+
+awslocal lambda invoke --function-name localstack-trpc output.txt
+
+awslocal lambda create-function-url-config \
+    --function-name localstack-trpc \
+    --auth-type NONE \
+    --cors '{"AllowOrigins": ["*"], "AllowMethods": ["GET", "POST"], "AllowHeaders": ["Content-Type"]}'
+
+
+awslocal lambda create-function \
+    --function-name auth-trpc \
+    --runtime nodejs20.x \
+    --zip-file fileb://auth.zip \
+    --handler auth.handler \
+    --role arn:aws:iam::000000000000:role/lambda-role
+
+awslocal lambda update-function-code \
+    --function-name auth-trpc \
+    --zip-file fileb://auth.zip
+
+awslocal apigateway create-authorizer \
+--rest-api-id xzhds3y6us \
+--name trpc-auth \
+--type TOKEN \
+--authorizer-uri arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:000000000000:function:auth-trpc/invocations \
+--identity-source 'method.request.header.Authorization' \
+--authorizer-result-ttl-in-seconds 300

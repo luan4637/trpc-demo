@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["linux-musl-arm64-openssl-3.0.x", "rhel-openssl-3.0.x", "darwin-arm64"]
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @db.VarChar(36)
+  name String @db.VarChar(255)
+  avatar String? @db.VarChar(512)
+  email String @unique @db.VarChar(255)
+  password String @db.VarChar(512)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+  tickets Ticket[]
+}
+
+model Ticket {
+  id String @id @db.VarChar(36)
+  title String @db.VarChar(255)
+  description String? @db.Text
+  assignee User? @relation(fields: [assigneeId], references: [id])
+  assigneeId String? @db.VarChar(36)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+  files File[]
+}
+
+model File {
+  id String @id @db.VarChar(36)
+  name String @db.VarChar(255)
+  type String @db.VarChar(32)
+  url String @db.VarChar(255)
+  ticketId String @db.VarChar(36)
+  ticket Ticket @relation(fields: [ticketId], references: [id])
+  createdBy String @db.VarChar(36)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+}

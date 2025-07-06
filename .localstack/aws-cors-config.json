@@ -1,0 +1,16 @@
+{
+  "CORSRules": [
+    {
+      "AllowedHeaders": ["*"],
+      "AllowedMethods": ["GET", "POST", "PUT", "HEAD", "DELETE"],
+      "AllowedOrigins": [
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "http://localhost",
+        "https://app.localstack.cloud",
+        "http://app.localstack.cloud"
+      ],
+      "ExposeHeaders": ["ETag"]
+    }
+  ]
+}
